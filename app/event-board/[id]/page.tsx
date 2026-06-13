@@ -52,11 +52,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <CardContent className="flex flex-col gap-2">
                 {place.eventDates.map((date, i) => (
                   <Badge key={i} variant="secondary" className="justify-start font-normal">
-                    {new Date(date).toLocaleDateString('uk-UA', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                      {date}
                   </Badge>
                 ))}
               </CardContent>

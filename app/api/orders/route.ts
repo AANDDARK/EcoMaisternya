@@ -1,6 +1,23 @@
 import { NextResponse } from "next/server";
 import { db } from "../main";
+export async function GET() {
+  try {
+    const result = await db.execute(`SELECT * FROM orders`);
+    const orders = result.rows as unknown as {
+      id: number;
+      contact_username: string;
+      sum: number;
+      products: string;
+    }[];
 
+    return NextResponse.json(orders.map(o => ({
+      ...o,
+      products: JSON.parse(o.products),
+    })));
+  } catch (error) {
+    return NextResponse.json({ error: 'Помилка' }, { status: 500 });
+  }
+}
 export async function POST(request: Request) {
   try {
     const { contact_username, products } = await request.json();

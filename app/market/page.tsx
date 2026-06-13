@@ -51,17 +51,28 @@ export default function Page() {
   const total = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
 
   async function placeOrder() {
-    if (!username || cart.length === 0) return;
-    await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contact_username: username, products: cart }),
-    });
-    setCart([]);
-    setUsername("");
-    setOrdered(true);
-  }
+  if (!username || cart.length === 0) return;
 
+  await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contact_username: username, products: cart }),
+  });
+
+  await Promise.all(
+    cart.map(el =>
+      fetch("/api/products", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: el.id }),
+      })
+    )
+  );
+
+  setCart([]);
+  setUsername("");
+  setOrdered(true);
+}
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
 

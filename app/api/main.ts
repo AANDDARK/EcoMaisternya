@@ -1,13 +1,11 @@
 import { createClient } from "@libsql/client";
 
-// Ініціалізація клієнта Turso
-// Переконайся, що додав TURSO_DATABASE_URL та TURSO_AUTH_TOKEN у свій .env.local
+
 export const db = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-// --- Функції для масового вставлення (заміна db.transaction) ---
 
 export async function insertManyPlaces(places: {
   name: string;
@@ -28,20 +26,6 @@ export async function insertManyPlaces(places: {
   return await db.batch(statements, "write");
 }
 
-export async function insertManyRecyclingPoints(points: {
-  name: string;
-  pos?: { lat: number; lng: number };
-}[]) {
-  const statements = points.map((point) => ({
-    sql: `INSERT INTO rerecyclingPoint (name, pos) VALUES (?, ?)`,
-    args: [
-      point.name,
-      JSON.stringify(point.pos ?? { lat: 0, lng: 0 })
-    ],
-  }));
-
-  return await db.batch(statements, "write");
-}
 
 export async function insertManyProducts(items: {
   name: string;
@@ -114,13 +98,6 @@ export async function initAndSeedDatabase() {
 
     console.log("=== Наповнення бази даних (Seed) ===");
 
-    // Запуск твоїх транзакцій на додавання даних
-    await insertManyProducts([
-      { name: "Еко-сумка", describe: "Багаторазова сумка з перероблених матеріалів", price: 150 },
-      { name: "Бамбукова зубна щітка", describe: "Біорозкладувана щітка з бамбуку", price: 85 },
-      { name: "Металева пляшка", describe: "Пляшка для води з нержавіючої сталі", price: 320 },
-    ]);
-
     await insertManyPlaces([
       {
         name: "school 12",
@@ -130,10 +107,6 @@ export async function initAndSeedDatabase() {
       }
     ]);
 
-    await insertManyRecyclingPoints([
-      { name: "Пункт переробки №1", pos: { lat: 49.0674, lng: 33.4111 } },
-      { name: "Пункт переробки №2", pos: { lat: 49.0712, lng: 33.4205 } },
-    ]);
 
     console.log("=== БД успішно налаштована та наповнена! ===");
   } catch (error) {

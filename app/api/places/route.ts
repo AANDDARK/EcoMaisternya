@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "../main"; 
 
 interface PlaceRow {
@@ -63,5 +63,19 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error POST /api/places:", error);
     return NextResponse.json({ error: "Can't save place" }, { status: 500 });
+  }
+}
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id } = await req.json();
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID обов\'язковий' }, { status: 400 });
+    }
+
+    await db.execute({ sql: `DELETE FROM places WHERE id = ?`, args: [id] });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Помилка видалення' }, { status: 500 });
   }
 }
